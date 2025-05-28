@@ -58,8 +58,8 @@ class DataPreprocessor:
         """
         Plots pairwise relationships between numerical features.
         """
-        sns.pairplot(self.df, hue='y', diag_kind='hist')
-        plt.suptitle("Pairplot of Features Colored by Target", y=1.02)
+        g = sns.pairplot(self.df, hue='y', diag_kind='hist')
+        g._legend.set_bbox_to_anchor((1.02, 0.5))
         plt.tight_layout()
         plt.show()
 
@@ -102,7 +102,6 @@ class DataPreprocessor:
             plt.ylabel("")
             plt.tight_layout()
             
-        plt.suptitle("Boxplot - Training Set", y=1.02)
         plt.show()
 
     def remove_outliers(self, factor=1.5):
@@ -131,7 +130,6 @@ class DataPreprocessor:
         corr = self.X_train.corr()
         plt.figure(figsize=(10, 8))
         sns.heatmap(corr, annot=True, cmap='coolwarm', fmt=".2f")
-        plt.title("Correlation Matrix - Training Set")
         plt.tight_layout()
         plt.show()
 
