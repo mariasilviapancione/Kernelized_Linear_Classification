@@ -902,8 +902,8 @@ class KernelizedPerceptron:
             return (1 + np.dot(X1, X2.T)) ** degree
         else:
             raise ValueError("Unsupported kernel type")
-
-    def train(self, X, y, epochs, kernel_params):
+    
+    def train(self, X, y, epochs, kernel_params, verbose=False):
         """
         Train the Kernel Perceptron using precomputed kernel matrix.
 
@@ -914,15 +914,29 @@ class KernelizedPerceptron:
             kernel_params (dict): Kernel parameters.
         """
         self.X_train = X
+        self.y_train = y
         n_samples = len(X)
         self.alpha = np.zeros(n_samples)
         self.K_train = self._compute_kernel_matrix(X, X, kernel_params)
 
-        for _ in range(epochs):
+        converged = False
+
+        for epoch in range(epochs):
+            updates = 0
             for i in range(n_samples):
                 prediction = np.sign(np.sum(self.alpha * y * self.K_train[:, i]))
                 if prediction != y[i]:
                     self.alpha[i] += 1
+                    updates += 1
+
+            if updates == 0:  # Check for convergence
+                if verbose:
+                    print(f"Converged after {epoch + 1} epochs.")
+                converged = True
+                break
+
+        if not converged and verbose:
+            print("Did not converge within the maximum number of epochs.")
 
     def predict(self, X, kernel_params):
         """
@@ -976,7 +990,7 @@ class KernelizedPerceptron:
                 X_train, y_train = X[train_idx], y[train_idx]
                 X_val, y_val = X[val_idx], y[val_idx]
 
-                self.train(X_train, y_train, param_dict['epochs'], param_dict)
+                self.train(X_train, y_train, param_dict['epochs'], param_dict, verbose=False)
                 self.y_train = y_train  # Needed for prediction
                 y_pred = self.predict(X_val, param_dict)
                 loss = np.mean(y_pred != y_val)
@@ -1006,7 +1020,7 @@ class KernelizedPerceptron:
         if self.best_params is None:
             raise ValueError("Run cross_validate() before evaluate().")
 
-        self.train(X_train, y_train, self.best_params['epochs'], self.best_params)
+        self.train(X_train, y_train, self.best_params['epochs'], self.best_params, verbose=True)
         self.y_train = y_train  # Needed for prediction
         y_pred_train = self.predict(X_train, self.best_params)
         y_pred_test = self.predict(X_test, self.best_params)
