@@ -134,7 +134,7 @@ class DataPreprocessor:
         plt.tight_layout()
         plt.show()
 
-    def remove_highly_correlated(self, threshold=0.95):
+    def remove_highly_correlated(self, threshold=0.90):
         """
         Removes features from the training and test sets that are highly correlated.
         
